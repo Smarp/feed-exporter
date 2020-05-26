@@ -2,17 +2,28 @@ package smarp
 
 import (
 	"encoding/json"
+	"errors"
 	"exporter/model"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 type SmarpFetcher struct {
 }
 
 func (SmarpFetcher) Fetch() ([]model.Post, error) {
-	resp, err := http.Get("https://salesforce.smarpshare.com/api/post3?type=published&page=0&pageSize=10&channelId=5ecb8e663792c41ffe9f79de")
+	instance := os.Getenv("INSTANCE_SUBDOMAIN")
+	if instance == "" {
+		return nil, errors.New("no instance provided")
+	}
+	channelId := os.Getenv("CHANNEL_ID")
+	if channelId == "" {
+		return nil, errors.New("no channelId provided")
+	}
+	url := "https://" + instance + ".smarpshare.com/api/post3?type=published&page=0&pageSize=10&channelId=" + channelId
+	resp, err := http.Get(url)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
