@@ -5,6 +5,7 @@ import (
 	"exporter/repository/fetcher"
 	"exporter/repository/publisher"
 	"github.com/sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func (this *Exporter) Do() error {
 
 	var validPosts []model.Post
 	for _, post := range posts {
-		timePublished := post.PublishedDate.Add(5 * time.Minute)
+		timePublished := post.PublishedDate.Add(time.Minute + (10 * time.Second))
 		now := time.Now()
 
 		if timePublished.Equal(now) || timePublished.After(now) {
@@ -37,6 +38,8 @@ func (this *Exporter) Do() error {
 		logrus.Info("Nothing to do")
 		return nil
 	}
+
+	logrus.Info("Found " + strconv.Itoa(len(validPosts)) + " post(s) to publish")
 
 	err = this.Publisher.Publish(posts)
 	if err != nil {
