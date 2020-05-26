@@ -12,7 +12,7 @@ type SmarpFetcher struct {
 }
 
 func (SmarpFetcher) Fetch() ([]model.Post, error) {
-	resp, err := http.Get("https://smarp.smarpshare.com/api/post3?type=published&page=0&pageSize=10&channelId=5d15f84554533f4fa19212d2")
+	resp, err := http.Get("https://salesforce.smarpshare.com/api/post3?type=published&page=0&pageSize=10&channelId=5ecb8e663792c41ffe9f79de")
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
