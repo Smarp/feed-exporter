@@ -15,7 +15,7 @@ type Exporter struct {
 }
 
 func (this *Exporter) Do() error {
-	posts, err := this.Fetcher.Fetch()
+	fetchedPosts, err := this.Fetcher.Fetch()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
@@ -24,24 +24,24 @@ func (this *Exporter) Do() error {
 		return err
 	}
 
-	var validPosts []model.Post
-	for _, post := range posts {
+	var newPosts []model.Post
+	for _, post := range fetchedPosts {
 		timePublished := post.PublishedDate.Add(time.Minute + (10 * time.Second))
 		now := time.Now()
 
 		if timePublished.Equal(now) || timePublished.After(now) {
-			validPosts = append(validPosts, post)
+			newPosts = append(newPosts, post)
 		}
 	}
 
-	if len(validPosts) == 0 {
+	if len(newPosts) == 0 {
 		logrus.Info("Nothing to do")
 		return nil
 	}
 
-	logrus.Info("Found " + strconv.Itoa(len(validPosts)) + " post(s) to publish")
+	logrus.Info("Found " + strconv.Itoa(len(newPosts)) + " post(s) to publish")
 
-	err = this.Publisher.Publish(validPosts)
+	err = this.Publisher.Publish(newPosts)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
