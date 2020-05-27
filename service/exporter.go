@@ -41,7 +41,7 @@ func (this *Exporter) Do() error {
 
 	logrus.Info("Found " + strconv.Itoa(len(validPosts)) + " post(s) to publish")
 
-	err = this.Publisher.Publish(posts)
+	err = this.Publisher.Publish(validPosts)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
