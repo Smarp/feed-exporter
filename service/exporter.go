@@ -26,10 +26,9 @@ func (this *Exporter) Do() error {
 
 	var newPosts []model.Post
 	for _, post := range fetchedPosts {
-		timePublished := post.PublishedDate.Add(time.Minute + (10 * time.Second))
-		now := time.Now()
+		latestReadTime := time.Now().Add(-(time.Minute + (10 * time.Second)))
 
-		if timePublished.Equal(now) || timePublished.After(now) {
+		if post.PublishedDate.After(latestReadTime) {
 			newPosts = append(newPosts, post)
 		}
 	}
