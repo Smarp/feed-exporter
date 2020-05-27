@@ -18,7 +18,6 @@ var latestFetchTime = time.Now()
 
 func (this *Exporter) Do() error {
 	logrus.Info("checking posts from ", latestFetchTime)
-	newFetchTime := time.Now()
 	fetchedPosts, err := this.Fetcher.Fetch()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
@@ -27,7 +26,7 @@ func (this *Exporter) Do() error {
 		}).Error("Error during fetching data from fetcher")
 		return err
 	}
-
+	newLatestFetchTime := latestFetchTime
 	var newPosts []model.Post
 	for _, post := range fetchedPosts {
 		//fmt.Println("---")
@@ -39,9 +38,12 @@ func (this *Exporter) Do() error {
 		//fmt.Println("latest", latestFetchTime)
 		if post.PublishedDate.Unix() > latestFetchTime.Unix() {
 			newPosts = append(newPosts, post)
+			if post.PublishedDate.Unix() > newLatestFetchTime.Unix() {
+				newLatestFetchTime = *post.PublishedDate
+			}
 		}
 	}
-	latestFetchTime = newFetchTime
+	latestFetchTime = newLatestFetchTime
 	if len(newPosts) == 0 {
 		logrus.Info("Nothing to do")
 		return nil

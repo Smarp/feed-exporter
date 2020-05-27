@@ -18,6 +18,6 @@ func main() {
 		logrus.Info("starting job...")
 		exporter.Do()
 		logrus.Info("finishing job.")
-		time.Sleep(40 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 }
