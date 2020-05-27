@@ -4,6 +4,8 @@ import (
 	"exporter/repository/fetcher/impl"
 	salesforce_chatter "exporter/repository/publisher/impl"
 	"exporter/service"
+	"github.com/sirupsen/logrus"
+	"time"
 )
 
 func main() {
@@ -12,5 +14,10 @@ func main() {
 		Publisher: salesforce_chatter.SFChatterPublisher{},
 	}
 
-	exporter.Do()
+	for {
+		logrus.Info("starting job...")
+		exporter.Do()
+		logrus.Info("finishing job.")
+		time.Sleep(60 * time.Second)
+	}
 }

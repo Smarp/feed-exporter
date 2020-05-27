@@ -14,7 +14,11 @@ type Exporter struct {
 	Publisher publisher.Publisher
 }
 
+var latestFetchTime = time.Now()
+
 func (this *Exporter) Do() error {
+	logrus.Info("checking posts from ", latestFetchTime)
+	newFetchTime := time.Now()
 	fetchedPosts, err := this.Fetcher.Fetch()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
@@ -26,13 +30,18 @@ func (this *Exporter) Do() error {
 
 	var newPosts []model.Post
 	for _, post := range fetchedPosts {
-		latestReadTime := time.Now().Add(-(time.Minute + (10 * time.Second)))
-
-		if post.PublishedDate.After(latestReadTime) {
+		//fmt.Println("---")
+		//fmt.Println("post", post.PublishedDate.Unix())
+		//fmt.Println("post", post.PublishedDate)
+		//fmt.Println("latest", post.Title)
+		//
+		//fmt.Println("latest", latestFetchTime.Unix())
+		//fmt.Println("latest", latestFetchTime)
+		if post.PublishedDate.Unix() > latestFetchTime.Unix() {
 			newPosts = append(newPosts, post)
 		}
 	}
-
+	latestFetchTime = newFetchTime
 	if len(newPosts) == 0 {
 		logrus.Info("Nothing to do")
 		return nil
