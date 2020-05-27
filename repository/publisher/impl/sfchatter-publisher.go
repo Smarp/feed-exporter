@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	subjectId               = "0F94I0000009tljSAA"
+	subjectId               = "0F94I0000009tm3SAA"
 	sfApi                   = "https://smarp.my.salesforce.com/services/data/v48.0"
 	chatterFeedElementsPATH = "/chatter/feed-elements"
 	smarpPostUrl            = "https://salesforce.smarpshare.com/#/preview/"
