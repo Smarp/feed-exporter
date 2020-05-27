@@ -47,9 +47,51 @@ var feedItemGenerator = func(subjectId, message string) FeedItem {
 		},
 	}
 }
+var getToken = func() string {
+	clientid := os.Getenv("CLIENT_ID")
+	clientSecret := os.Getenv("CLIENT_SECRET")
+	username := os.Getenv("CLIENT_USERNAME")
+	pass := os.Getenv("CLIENT_PASSWORD")
+	if clientid == "" || clientSecret == "" || username == "" || pass == "" {
+		logrus.WithFields(logrus.Fields{}).Error("not enough credentials. can not generate token")
+		return ""
+	}
+	url := "https://login.salesforce.com/services/oauth2/token?grant_type=password&client_id=" + clientid +
+		"&client_secret=" + clientSecret + "&username=" + username + "&password=" + pass
+	request, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"url": url,
+			"err": err,
+		}).Error("Cannot Publish")
+		return ""
+	}
+
+	client := &http.Client{}
+
+	resp, err := client.Do(request)
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		byteBody, _ := ioutil.ReadAll(resp.Body)
+		logrus.WithFields(logrus.Fields{
+			"body":        string(byteBody),
+			"status code": resp.StatusCode,
+		}).Error("unable to get token")
+		return ""
+	}
+	logrus.Info("new token created")
+	byteBody, _ := ioutil.ReadAll(resp.Body)
+
+	type authRes struct {
+		AccessToken string `json:"access_token"`
+	}
+	respBody := &authRes{}
+	err = json.Unmarshal(byteBody, respBody)
+	return respBody.AccessToken
+}
 
 func (SFChatterPublisher) Publish(posts []model.Post) error {
-	token := os.Getenv("SALESFORCE_TOKEN")
+	token := getToken()
 	if token == "" {
 		return errors.New("no token provided")
 	}
